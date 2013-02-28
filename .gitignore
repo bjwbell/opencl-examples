@@ -15,3 +15,13 @@
 *.exe
 *.out
 *.app
+
+# Gtags files
+GPATH
+GRTAGS
+GSYMS
+GTAGS
+
+# Emacs temporary files
+*#
+*~
