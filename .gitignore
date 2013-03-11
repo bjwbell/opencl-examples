@@ -15,6 +15,7 @@
 *.exe
 *.out
 *.app
+closest-pair/main
 
 # Gtags files
 GPATH
