@@ -33,7 +33,7 @@ __kernel void ckStrips(__global long3* pointsByY,
   if (strip_idx > numStrips || numPoints <= 2){
     return;
   }
-//  printf("diffs0[0]: %d, %d, %d\n", diffs[0].x, diffs[0].y, diffs[0].z, diffs[0].w);
+
   unsigned int xMidPointIdx = (maxStripSize/2 - 1) + maxStripSize * strip_idx;
 
   // use min to handle the case for non power of 2 points.
@@ -42,7 +42,6 @@ __kernel void ckStrips(__global long3* pointsByY,
 
   float diffDist1 = distance(convert_float2(diffs[strip_idx * maxStripSize/2].lo), 
 			     convert_float2(diffs[strip_idx * maxStripSize/2].hi));
-  diffs[strip_idx * maxStripSize/2] = diffs[strip_idx * maxStripSize/2];
 
   // the strip_idx * maxStripSize/2 + maxStripSize/4 + 1 < numPoints check is to handle
   // cases where strip2 doesn't exist, e.g. numPoints = 15 and maxStripSize = 4, then 
