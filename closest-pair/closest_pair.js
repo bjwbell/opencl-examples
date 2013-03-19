@@ -243,7 +243,7 @@ function drawPoints()
     }
     var output = document.getElementById("output");
     //output.innerHTML += "<br/>";
-    output.innerHTML += "JS Closest Pair: (" + points[closestPoints[0]][0] + ", " + points[closestPoints[0]][0] + "), (" + points[closestPoints[1]][0] + ", " + points[closestPoints[1]][1] + ")";
+    output.innerHTML += "JS Closest Pair: (" + points[closestPoints[0]][0] + ", " + points[closestPoints[0]][1] + "), (" + points[closestPoints[1]][0] + ", " + points[closestPoints[1]][1] + ")";
     output.innerHTML += "<br/>";
 }
 
