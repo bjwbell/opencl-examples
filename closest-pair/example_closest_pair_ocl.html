@@ -151,7 +151,7 @@ function loadKernel(id){
 function CL_ClosestPair (points) {
     // All output is written to element by id "output"
     var output = document.getElementById("output");
-    output.innerHTML = "";
+    //output.innerHTML = "";
     try 
     {
 	// First check if the WebCL extension is installed at all 
@@ -161,20 +161,19 @@ function CL_ClosestPair (points) {
 		  "and the WebCL browser extension installed.");
 	    return false;
 	}
-	//alert("generating points");
 	// Generate input vectors
-	var numPoints = 4;
+	var numPoints = points.length;
 	var pointsByX = new Uint32Array(numPoints          * 3); // * 3 since pointsByX is a 3 field structure.
 	var pointsByY = new Uint32Array(numPoints          * 3);
 	var diffs     = new Uint32Array(Math.floor((numPoints + 1)/2)  * 4); // * 4 since diffs is a 4 field structure
 	var strips    = new Uint32Array(numPoints * 2      * 2);
 
 	// Create points
-	output.innerHTML += "<br/>Num Points = " + numPoints + "<br/>";
-	//alert("sorting by x points");
+	output.innerHTML += "<br/>Num Points: " + numPoints + "<br/>";
 	// Populate pointsByX
  	// sort by x-coordinate
 	points.sort(function (a,b){return a[0] - b[0];});
+	output.innerHTML += "points:";
 	for (var i = 0; i < numPoints; i++)
 	{
 	    pointsByX[3 * i] = points[i][0];
@@ -182,13 +181,6 @@ function CL_ClosestPair (points) {
 	    output.innerHTML += "(" + points[i][0] + ", " + points[i][1] + ")," 
 	    pointsByX[3 * i + 2] = i;
 	}
-	output.innerHTML += "<br/>pointsByX=";
-	for (var i = 0; i < numPoints * 3; i++)
-	{
-	    output.innerHTML += ", " + pointsByX[i];
-	}
-	output.innerHTML += "<br/>";
-	//alert("sorting by y points");
 	// Populate pointsByY
 	// sort by y-coordinate
 	points.sort(function (a,b){return b[1] - a[1];});
@@ -197,7 +189,6 @@ function CL_ClosestPair (points) {
 	    pointsByY[3 * i] = points[i][0]; 
 	    pointsByY[3 * i + 1] = points[i][1];
 	    pointsByY[3 * i + 2] = i;
-	    output.innerHTML += "(" + points[i][0] + ", " + points[i][1] + ")," 
 	}
                   
 
@@ -207,13 +198,11 @@ function CL_ClosestPair (points) {
 	var ctx = WebCL.createContextFromType ([WebCL.CL_CONTEXT_PLATFORM, platforms[0]],
 					       WebCL.CL_DEVICE_TYPE_DEFAULT);
 	// Reserve buffers
-	alert("pointsByX.length: " + pointsByX.length);
 	var ckPointsByX = ctx.createBuffer (WebCL.CL_MEM_READ_WRITE, 4 * pointsByX.length);
 	var ckPointsByY = ctx.createBuffer (WebCL.CL_MEM_READ_WRITE, 4 * pointsByY.length);
 	var ckDiffs     = ctx.createBuffer (WebCL.CL_MEM_READ_WRITE, 4 * diffs.length);
 	var ckStrips    = ctx.createBuffer (WebCL.CL_MEM_READ_WRITE, 4 * strips.length);
 
-	//alert("building kernels");
 	// Create and build program for the first device
 	var kernelSrcDiffs = loadKernel("clDiffs");
 	var programDiffs = ctx.createProgramWithSource(kernelSrcDiffs);
@@ -233,7 +222,6 @@ function CL_ClosestPair (points) {
 	}
 	// Create command queue using the first available device
 	var cmdQueue = ctx.createCommandQueue (devices[0], 0);
-	//alert("enqueueing buffers");
 	// Write the buffers to OpenCL device memory
 	cmdQueue.enqueueWriteBuffer (ckPointsByX, true, 0, 4 * pointsByX.length, pointsByX, []);
 	cmdQueue.enqueueWriteBuffer (ckPointsByY, true, 0, 4 * pointsByY.length, pointsByY, []);
@@ -249,13 +237,10 @@ function CL_ClosestPair (points) {
 	// +1 to handle the case where numPoints is not even
 	var globalWorkSize = [Math.floor((numPoints + 1)/2)];
 	var localWorkSize = 1;
-	//alert("running diffs");
 	cmdQueue.enqueueNDRangeKernel(kernelDiffs, globalWorkSize.length, [], globalWorkSize, [], []);
 	cmdQueue.finish();
-	//alert("computing strips");
 	for (maxStripSize = 4; maxStripSize <= numPoints || (maxStripSize > numPoints && (maxStripSize/2 < numPoints)); maxStripSize *= 2){
 	    // Compute strips
-	    alert("computing strips");
 	    kernelStrips.setKernelArg(0, ckPointsByY);
 	    kernelStrips.setKernelArg(1, ckPointsByX);
 	    kernelStrips.setKernelArg(2, ckDiffs);
@@ -271,7 +256,6 @@ function CL_ClosestPair (points) {
 	    cmdQueue.finish();
 	}
 	cmdQueue.enqueueReadBuffer(ckDiffs, true, 0, diffs.length * 4, diffs, []);
-	alert("diffs[0], diffs[1], diffs[2], diffs[3]: " + diffs[0] + ", " + diffs[1] + ", " + diffs[2] + ", " + diffs[3]);
 	output.innerHTML += "<br/>";
 	output.innerHTML += "OCL Closest Pair: (" + diffs[0] + ", " + diffs[1] + "), (" + diffs[2] + ", " + diffs[3] + ")";
 	output.innerHTML += "<br/>";
@@ -345,11 +329,8 @@ function detectCL() {
 */
 </script>
 </head>
-<body onload="CL_ClosestPair(points)">
+<body onload="CL_ClosestPair(points); drawPoints();">
 <canvas id="canvas" width="800" height="600"><p>Fallback content goes here.</p></canvas>    
-<p>
-  detect WebCL
-</p>
 <script type="text/javascript">
 
   detectCL();

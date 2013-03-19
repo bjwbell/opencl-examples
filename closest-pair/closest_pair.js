@@ -78,21 +78,21 @@ function getEventYCoord(ev){
 }
 
 function initCanvas(){
-	var canvas = getCanvas();
-	context = canvas.getContext('2d');
-	context.fillStyle = '#fff';
-	context.fillRect(0, 0, width, height);
-	context.fillStyle = '#fff'; //white
-	context.strokeStyle = '#000'; //black
-	context.lineWidth = 4;
-    drawPoints();
+    var canvas = getCanvas();
+    context = canvas.getContext('2d');
+    context.fillStyle = '#fff';
+    context.fillRect(0, 0, width, height);
+    context.fillStyle = '#fff'; //white
+    context.strokeStyle = '#000'; //black
+    context.lineWidth = 4;
 }
 
 function mouseDown(ev){	
-	var x = getEventXCoord(ev);
-	var y = getEventYCoord(ev);
-	y = 600 - y;
-	points.push([x, y]);
+    var x = getEventXCoord(ev);
+    var y = getEventYCoord(ev);
+    y = 600 - y;
+    points.push([x, y]);
+    CL_ClosestPair(points);
     drawPoints();
 }
 
@@ -242,8 +242,8 @@ function drawPoints()
 	    p.draw(canvas);
     }
     var output = document.getElementById("output");
-    output.innerHTML += "<br/>";
-    output.innerHTML += "JS Closest Pairs: (" + points[closestPoints[0]][0] + ", " + points[closestPoints[0]][0] + "), (" + points[closestPoints[1]][0] + ", " + points[closestPoints[1]][1] + ")";
+    //output.innerHTML += "<br/>";
+    output.innerHTML += "JS Closest Pair: (" + points[closestPoints[0]][0] + ", " + points[closestPoints[0]][0] + "), (" + points[closestPoints[1]][0] + ", " + points[closestPoints[1]][1] + ")";
     output.innerHTML += "<br/>";
 }
 
