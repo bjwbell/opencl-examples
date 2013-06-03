@@ -46,8 +46,6 @@ points.push([100, 100]);
 points.push([200, 200]);
 points.push([300, 50]);
 points.push([100, 50]);
-//points.push([400, 50]);
-//points.push([200, 170]);
 
 function getCanvas() {
   return document.getElementById('canvas');
@@ -123,19 +121,23 @@ function computeClosestPoints()
 
 function sortPointsByY(points)
 {
-    var points2 = [];
-    for (var i = 0; i < points.length; i++)
-    {
-        points2[i] = [points[i][0], points[i][1]];
-    }
+    var points2 = points.slice(0);
     points2.sort(function (p1, p2) { return p1[1] - p2[1]; });
     return points2;
 }
 
 function computeClosestRecursive(points)
 {
-    var points_sorted_by_y = sortPointsByY(points);
-    return computeClosestPointsRecursive(points, points_sorted_by_y);
+    var points_sorted_by_x = points.slice(0);
+    points_sorted_by_x.sort(function (p1, p2) { return p1[0] - p2[0]; });
+    var points2 = []
+    for (var i = 0; i < points_sorted_by_x.length; i++)
+    {
+	points2.push([points_sorted_by_x[i][0], points_sorted_by_x[i][1],
+		      i]);
+    }
+    var points_sorted_by_y = sortPointsByY(points2);
+    return computeClosestPointsRecursive(points2, points_sorted_by_y);
 }
 
 
@@ -144,8 +146,8 @@ function computeClosestRecursive(points)
 function computeClosestPointsRecursive(points, points_sorted_by_y)
 {
     if (points.length <= 3){
-        var d1 = dist([points[0][0], points[0][1]], [points[1][0], points[1][1]]);
-        if (points.length < 3)
+        var d1 = dist([points[0][0], points[0][1]], [points[1][0], points[1][1]]);        
+	if (points.length < 3)
         {
             return [0, 1];
         }
@@ -165,6 +167,10 @@ function computeClosestPointsRecursive(points, points_sorted_by_y)
     var idx_l = computeClosestPointsRecursive(points.slice(0, mid_point_idx), points_sorted_by_y);
 
     var idx_r = computeClosestPointsRecursive(points.slice(mid_point_idx), points_sorted_by_y);
+    if (idx_r[1] >= points.slice(mid_point_idx).length)
+    {
+	var x =_____ddjsldsklds___;
+    }
     idx_r[0] = idx_r[0] + mid_point_idx;
     idx_r[1] = idx_r[1] + mid_point_idx;
     var d_l = dist(points[idx_l[0]], points[idx_l[1]]);
@@ -181,7 +187,9 @@ function computeClosestPointsRecursive(points, points_sorted_by_y)
     
     for (var i = 0; i < points_sorted_by_y.length; i++)
     {
-        if (Math.abs(points_sorted_by_y[i][0] - points[mid_point_idx][0]) <= d_min)
+        if (Math.abs(points_sorted_by_y[i][0] - points[mid_point_idx][0]) <= d_min &&
+	   points_sorted_by_y[i][0] >= points[0][0] && points_sorted_by_y[i][0] <= points[points.length - 1][0]
+	   && points_sorted_by_y[i][2] >= points[0][2] && points_sorted_by_y[i][2] <= points[points.length - 1][2])
         {
             points_strip.push(points_sorted_by_y[i]);
         }
@@ -206,6 +214,7 @@ function computeClosestPointsRecursive(points, points_sorted_by_y)
     {
         var find_idx1 = true;
         var find_idx2 = true;
+	var p_y_min_idx1 = min_idx1;
         for (var i = 0; i < points.length; i++)
         {
             if (find_idx1 && points[i][0] == points_strip[min_idx1][0] && points[i][1] == points_strip[min_idx1][1])
@@ -222,6 +231,11 @@ function computeClosestPointsRecursive(points, points_sorted_by_y)
                 break;
             }
         }
+	if (find_idx2 == true)
+	{
+	    var q = ___djisj;
+	}
+
     }
     //alert('points: ' + points + ' idx1, idx2: ' + min_idx1 + ', ' + min_idx2);
     return [min_idx1, min_idx2];

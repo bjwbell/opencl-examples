@@ -108,33 +108,25 @@ int initOCL(){
 	clGetPlatformInfo(platform[i], CL_PLATFORM_VENDOR, sizeof(platformVendor), &platformVendor, NULL);
 	printf("platform_vendor: %s\n", platformVendor);
     }
-    if (numPlatforms > 1) {
-	for (int i = 0; i < numPlatforms; i++) {
-	    
-	}
-	
-    } else if (numPlatforms == 1) {
-	
-	error = clGetDeviceIDs(*platform, CL_DEVICE_TYPE_CPU, 1, &device, NULL);
-	if (error) {
-	    cerr << "the following error occured: " << error << endl;
-	    return error;
-	}
-	assert(error == CL_SUCCESS);
-	context = clCreateContext(NULL, 1, &device, NULL, NULL, &error);
-	if (error){
-	    cerr << "the following error occured: " << error << endl;
-	    return error;
-	}
-	queue = clCreateCommandQueue(context, device, 0, &error);
-	if (error) {
-	    cerr << "the following error occured: " << error << endl;
-	    return error;
-	}
-	char ext_data[4096];
-	clGetDeviceInfo(device, CL_DEVICE_EXTENSIONS, sizeof(ext_data), ext_data, NULL);
-	printf("extensions: %s\n", ext_data);
+    error = clGetDeviceIDs(*platform, CL_DEVICE_TYPE_CPU, 1, &device, NULL);
+    if (error) {
+	cerr << "the following error occured: " << error << endl;
+	return error;
     }
+    assert(error == CL_SUCCESS);
+    context = clCreateContext(NULL, 1, &device, NULL, NULL, &error);
+    if (error){
+	cerr << "the following error occured: " << error << endl;
+	return error;
+    }
+    queue = clCreateCommandQueue(context, device, 0, &error);
+    if (error) {
+	cerr << "the following error occured: " << error << endl;
+	return error;
+    }
+    char ext_data[4096];
+    clGetDeviceInfo(device, CL_DEVICE_EXTENSIONS, sizeof(ext_data), ext_data, NULL);
+    printf("extensions: %s\n", ext_data);
 
     program = createPrograms(context, &error);
     if (error != CL_SUCCESS) {
@@ -367,6 +359,7 @@ cl_long2* generatePoints(const int numPoints, const cl_ulong2 range, const int s
 int main() {
     if (initOCL()) {
 	cerr << "Error initializing OCL" << endl;
+	return -1;
     }
 
     if (test() == SUCCESS)
@@ -395,7 +388,6 @@ uint test()
 
 	    range.s[0] = 256 * numPoints;
 	    range.s[1] = 256 * numPoints;
-
 	    cl_long2* points = generatePoints(numPoints, range, testId + 2, rand() % 10);
 	    if (!points) 
 	    {

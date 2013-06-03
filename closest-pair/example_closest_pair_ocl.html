@@ -148,7 +148,8 @@ function loadKernel(id){
   return kernelSource;
 }
 
-function CL_ClosestPair (points) {
+function CL_ClosestPair (points, print_output, return_timing_info) {
+    points = points.slice(0);
     // All output is written to element by id "output"
     var output = document.getElementById("output");
     //output.innerHTML = "";
@@ -169,16 +170,25 @@ function CL_ClosestPair (points) {
 	var strips    = new Uint32Array(numPoints * 2      * 2);
 
 	// Create points
-	output.innerHTML += "<br/>Num Points: " + numPoints + "<br/>";
+	if (print_output == undefined)
+	{
+	    output.innerHTML += "<br/>Num Points: " + numPoints + "<br/>";
+	}
 	// Populate pointsByX
  	// sort by x-coordinate
 	points.sort(function (a,b){return a[0] - b[0];});
-	output.innerHTML += "points:";
+	if (print_output == undefined)
+	{
+	    output.innerHTML += "points:";
+	}
 	for (var i = 0; i < numPoints; i++)
 	{
 	    pointsByX[3 * i] = points[i][0];
 	    pointsByX[3 * i + 1] = points[i][1];
-	    output.innerHTML += "(" + points[i][0] + ", " + points[i][1] + ")," 
+	    if (print_output == undefined)
+	    {
+		output.innerHTML += "(" + points[i][0] + ", " + points[i][1] + "),";
+	    }
 	    pointsByX[3 * i + 2] = i;
 	}
 	// Populate pointsByY
@@ -222,6 +232,7 @@ function CL_ClosestPair (points) {
 	}
 	// Create command queue using the first available device
 	var cmdQueue = ctx.createCommandQueue (devices[0], 0);
+	var start_time = (new Date()).getTime();
 	// Write the buffers to OpenCL device memory
 	cmdQueue.enqueueWriteBuffer (ckPointsByX, true, 0, 4 * pointsByX.length, pointsByX, []);
 	cmdQueue.enqueueWriteBuffer (ckPointsByY, true, 0, 4 * pointsByY.length, pointsByY, []);
@@ -256,16 +267,26 @@ function CL_ClosestPair (points) {
 	    cmdQueue.finish();
 	}
 	cmdQueue.enqueueReadBuffer(ckDiffs, true, 0, diffs.length * 4, diffs, []);
-	output.innerHTML += "<br/>";
-	output.innerHTML += "OCL Closest Pair: (" + diffs[0] + ", " + diffs[1] + "), (" + diffs[2] + ", " + diffs[3] + ")";
-	output.innerHTML += "<br/>";
+	var diff = (new Date()).getTime() - start_time;
+	if (print_output == undefined)
+	{
+	    output.innerHTML += "<br/>";
+	    output.innerHTML += "OCL Closest Pair: (" + diffs[0] + ", " + diffs[1] + "), (" + diffs[2] + ", " + diffs[3] + ")";
+	    output.innerHTML += "<br/>";
+	}
 	// release resources
 	/*clReleaseMemObject(ckPointsByX);
 	clReleaseMemObject(ckPointsByY);
 	clReleaseMemObject(ckDiffs);
 	clReleaseMemObject(ckStrips);*/
 	//return [[diffs[0], diffs[1]], [diffs[2], diffs[3]]];
-	return 0;
+	if (return_timing_info == undefined)
+	{
+	    return 0;
+	} else
+	{
+	    return [diff, diffs[0], diffs[1], diffs[2], diffs[3]];
+	}
     } catch(e) {
 	document.getElementById("output").innerHTML += "<h3>ERROR:</h3><pre style=\"color:red;\">" + e.message + "</pre>";
 	throw e;
@@ -296,47 +317,22 @@ function detectCL() {
       var plat = platforms[i];
       devices[i] = plat.getDeviceIDs(WebCL.CL_DEVICE_TYPE_ALL);
     }
-    //alert("Excellent! Your system does support WebCL.");
   } catch (e) {
     alert("Unfortunately platform or device inquiry failed.");
   }
 }
-
-
 </script>
 <script type="text/javascript" src="closest_pair.js"></script>
-<script type="text/javascript">
-/*	var points    = [];
-	for (var i = 0; i < numPoints;  i++) {
-	    var cont = true;
-	    while (cont) {
-		cont = false;
-		var p = [Math.floor(Math.random() * 100), Math.floor(Math.random() * 100)];
-		for (var j = 0; j < i; j++)
-		{
-		    if (points[j][0] == p[0] && points[j][1] == p[1])
-		    {
-			cont = true;
-			break;
-		    }
-		}
-		if (!cont) {
-		    points[i] = p;
-		}
-	    }
-	    
-	}
-*/
-</script>
+<script type="text/javascript" src="timing_code.js"></script>
 </head>
 <body onload="CL_ClosestPair(points); drawPoints();">
 <canvas id="canvas" width="800" height="600"><p>Fallback content goes here.</p></canvas>    
 <script type="text/javascript">
-
   detectCL();
 </script>
 <div id="output">
 </div> 
-
+<button type="button" onclick="TimeOCL_JS();">Time OCL & JS</button>
+<div id="TimingInfo"</div>
 </body>
 </html>
