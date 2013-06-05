@@ -1,0 +1,3 @@
+[submodule "CL.js"]
+	path = CL.js
+	url = git://github.com/toaarnio/CL.js
