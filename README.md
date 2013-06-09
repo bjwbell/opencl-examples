@@ -7,4 +7,4 @@ OpenCL Examples
 Computes the closest pair of points
 See http://en.wikipedia.org/wiki/Closest_pair_of_points_problem
 
-WebCL version [closest_pair_ocl.html](http://htmlpreview.github.com/?https://github.com/bjwbell/OpenCL-Examples/blob/master/closest-pair/example_closest_pair_ocl.html).
+WebCL version [closest_pair_ocl.html](http://htmlpreview.github.com/?https://github.com/bjwbell/OpenCL-Examples/blob/master/closest-pair/closest-pair-ocl.html).
