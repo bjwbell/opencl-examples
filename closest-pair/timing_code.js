@@ -45,9 +45,9 @@ function TimeOCL_JS()
           }*/
         output.innerHTML += "<br/>";
         output.innerHTML += "NumPoints:" + numPoints + "<br/>";
-	    output.innerHTML += "JS: Time = " + JS_Time + " millisec" + ", Pair: (" + points[closestPoints[0]][0] + ", " + points[closestPoints[0]][1] + "), (" + points[closestPoints[1]][0] + ", " + points[closestPoints[1]][1] + "), d = " + dist(points[closestPoints[0]], points[closestPoints[1]]);
+	    output.innerHTML += "JS: Time = " + JS_Time + " millisec(s)" + ", Pair: (" + points[closestPoints[0]][0] + ", " + points[closestPoints[0]][1] + "), (" + points[closestPoints[1]][0] + ", " + points[closestPoints[1]][1] + "), d = " + dist(points[closestPoints[0]], points[closestPoints[1]]);
         output.innerHTML += "<br/>";
-	    output.innerHTML += "CL: Time = " + (OCL_Time) + " millisec"  + ", Pair: (" + OCL[1] + ", " + OCL[2] + "), (" + OCL[3] + ", " + OCL[4] + "), d = " + dist([OCL[1], OCL[2]], [OCL[3], OCL[4]]);
+	    output.innerHTML += "CL: Time = " + (OCL_Time) + " millisec(s)"  + ", Pair: (" + OCL[1] + ", " + OCL[2] + "), (" + OCL[3] + ", " + OCL[4] + "), d = " + dist([OCL[1], OCL[2]], [OCL[3], OCL[4]]);
 	    output.innerHTML += "<br/>";
     }    
 }
