@@ -6,7 +6,6 @@
 
  
 <script id="clStrips" type="text/x-opencl">
-    //#pragma OPENCL EXTENSION all : enable
 __kernel void ckStrips(__global uint3* pointsByY, 
 		       __global uint3* pointsByX,
 		       __global uint4 *diffs,
@@ -53,7 +52,7 @@ __kernel void ckStrips(__global uint3* pointsByY,
     //printf("minIdx, maxIdx: %ld, %ld\n", minIdx, maxIdx);
     //printf("numPoints: %d, arg1: %d, arg2: %d\n", numPoints, strip_idx * maxStripSize + maxStripSize - 1, numPoints-1);
   for (int i = 0; i < numPoints; i++){
-      float dist = fabs(pointsByY[i].x - xMidPoint);
+      float dist = fabs((float)((long)pointsByY[i].x - (long)xMidPoint));
       if (dist < diffDist && (pointsByY[i].s2 >= minIdx && pointsByY[i].s2 <= maxIdx))	  
       {
 	  strip[strip_idx * maxStripSize + stripLength] = pointsByY[i].xy;
@@ -66,8 +65,8 @@ __kernel void ckStrips(__global uint3* pointsByY,
       int j = i + 1;
       float diffDist = distance(convert_float2(diffs[strip_idx * maxStripSize/2].lo), convert_float2(diffs[strip_idx * maxStripSize/2].hi));
       //printf("s_diffDist:%f\n", diffDist);
-      //printf("strip[i].y, strip[j].y, strip_diff:(%d, %d, %f)\n", strip[strip_idx * maxStripSize + i].y, strip[strip_idx * maxStripSize + j].y, fabs((int)strip[strip_idx * maxStripSize + i].y - (int)strip[strip_idx * maxStripSize + j].y));
-      while(j < stripLength && fabs((long)strip[strip_idx * maxStripSize + i].y - (long)strip[strip_idx * maxStripSize + j].y) < diffDist) {
+      //printf("strip[i].y, strip[j].y, strip_diff:(%d, %d, %f)\n", strip[strip_idx * maxStripSize + i].y, strip[strip_idx * maxStripSize + j].y, fabs((float)((int)strip[strip_idx * maxStripSize + i].y - (int)strip[strip_idx * maxStripSize + j].y)));
+      while(j < stripLength && fabs((float)((long)strip[strip_idx * maxStripSize + i].y - (long)strip[strip_idx * maxStripSize + j].y)) < diffDist) {
 	  diffDist = distance(convert_float2(diffs[strip_idx * maxStripSize/2].lo), convert_float2(diffs[strip_idx * maxStripSize/2].hi));
 	  if (diffDist > distance(convert_float2(strip[strip_idx * maxStripSize + i]), convert_float2(strip[strip_idx * maxStripSize + j])))
 	  {
@@ -86,7 +85,6 @@ __kernel void ckStrips(__global uint3* pointsByY,
 
 
 <script id="clDiffs" type="text/x-opencl">
-      //#pragma OPENCL EXTENSION all : enable
 __kernel void ckDiffs(__global uint3* points, 
 		      __global uint3* diffs, 
                       unsigned int numPoints) {
@@ -178,9 +176,9 @@ function CL_ClosestPair (points, print_output, return_timing_info) {
 	    pointsByY[4 * i + 1] = pointsByXC[i][1];
 	    pointsByY[4 * i + 2] = pointsByXC[i][2];
 	}
-                  
 
-	
+
+
 	// Setup WebCL context using the default device of the first available platform 
 	var platforms = WebCL.getPlatformIDs();
 	var ctx = WebCL.createContextFromType ([WebCL.CL_CONTEXT_PLATFORM, platforms[0]],
@@ -201,13 +199,21 @@ function CL_ClosestPair (points, print_output, return_timing_info) {
 	
 	try {
 	    programDiffs.buildProgram ([devices[0]], "");
-	    programStrips.buildProgram ([devices[0]], "");
 	} catch(e) {
-	    alert ("Failed to build WebCL program. Error "
-		   + program.getProgramBuildInfo (devices[0], WebCL.CL_PROGRAM_BUILD_STATUS)
-		   + ":  " + program.getProgramBuildInfo (devices[0], WebCL.CL_PROGRAM_BUILD_LOG));
+	    alert ("Failed to build programDiffs. Error "
+		   + programDiffs.getProgramBuildInfo (devices[0], WebCL.CL_PROGRAM_BUILD_STATUS)
+		   + ":  " + programDiffs.getProgramBuildInfo (devices[0], WebCL.CL_PROGRAM_BUILD_LOG));
 	    throw e;
 	}
+	try {
+	    programStrips.buildProgram ([devices[0]], "");
+	} catch(e) {
+	    alert ("Failed to build programStrips. Error "
+		   + programStrips.getProgramBuildInfo (devices[0], WebCL.CL_PROGRAM_BUILD_STATUS)
+		   + ":  " + programStrips.getProgramBuildInfo (devices[0], WebCL.CL_PROGRAM_BUILD_LOG));
+	    throw e;
+	}
+
 	// Create command queue using the first available device
 	var cmdQueue = ctx.createCommandQueue (devices[0], 0);
 	var start_time = (new Date()).getTime();	
@@ -251,13 +257,8 @@ function CL_ClosestPair (points, print_output, return_timing_info) {
 	    output.innerHTML += "<br/>";
 	    output.innerHTML += "OCL Closest Pair: (" + diffs[0] + ", " + diffs[1] + "), (" + diffs[2] + ", " + diffs[3] + ")";
 	    output.innerHTML += "<br/>";
-	}	    
+	}	   
 	// release resources
-	/*clReleaseMemObject(ckPointsByX);
-	clReleaseMemObject(ckPointsByY);
-	clReleaseMemObject(ckDiffs);
-	clReleaseMemObject(ckStrips);*/
-	//return [[diffs[0], diffs[1]], [diffs[2], diffs[3]]];
 	if (return_timing_info == undefined)
 	{
 	    return 0;
@@ -304,29 +305,6 @@ function detectCL() {
 
 </script>
 <script type="text/javascript" src="closest_pair.js"></script>
-<script type="text/javascript">
-/*	var points    = [];
-	for (var i = 0; i < numPoints;  i++) {
-	    var cont = true;
-	    while (cont) {
-		cont = false;
-		var p = [Math.floor(Math.random() * 100), Math.floor(Math.random() * 100)];
-		for (var j = 0; j < i; j++)
-		{
-		    if (points[j][0] == p[0] && points[j][1] == p[1])
-		    {
-			cont = true;
-			break;
-		    }
-		}
-		if (!cont) {
-		    points[i] = p;
-		}
-	    }
-	    
-	}
-*/
-</script>
 <script type="text/javascript" src="timing_code.js"></script>
 </head>
 <body onload="CL_ClosestPair(points); drawPoints();">
@@ -341,3 +319,4 @@ function detectCL() {
 <div id="TimingInfo"</div>
 </body>
 </html>
+
