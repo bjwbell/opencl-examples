@@ -1,4 +1,4 @@
-function CL_ClosestPair (points, print_output, return_timing_info) {
+function clClosestPair (points, print_output, return_timing_info) {
     points = points.slice(0);
     // All output is written to element by id "output"
     var output = document.getElementById("output");

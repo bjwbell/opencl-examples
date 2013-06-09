@@ -1,5 +1,5 @@
 __kernel void ckDiffs(__global uint3* points, 
-		      __global uint3* diffs, 
+		      __global uint4* diffs, 
                       unsigned int numPoints) {
   unsigned int idx = get_global_id(0);
   // compute the distance

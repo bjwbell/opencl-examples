@@ -41,18 +41,17 @@ __kernel void ckStrips(__global uint3* pointsByY,
 
   long maxIdx = min(strip_idx * maxStripSize + maxStripSize - 1, numPoints - 1);
   for (int i = 0; i < numPoints; i++){
-      float dist = fabs((float)((long)pointsByY[i].x - (long)xMidPoint));
+      float dist = fabs(((long)pointsByY[i].x - (long)xMidPoint));
       if (dist < diffDist && (pointsByY[i].s2 >= minIdx && pointsByY[i].s2 <= maxIdx))	  
       {
 	  strip[strip_idx * maxStripSize + stripLength] = pointsByY[i].xy;
 	  stripLength++;
       }       
   }
-
   for (int i = 0; i < stripLength; i++) {
       int j = i + 1;
       float diffDist = distance(convert_float2(diffs[strip_idx * maxStripSize/2].lo), convert_float2(diffs[strip_idx * maxStripSize/2].hi));
-      while(j < stripLength && fabs((float)((long)strip[strip_idx * maxStripSize + i].y - (long)strip[strip_idx * maxStripSize + j].y)) < diffDist) {
+      while(j < stripLength && fabs(((long)strip[strip_idx * maxStripSize + i].y - (long)strip[strip_idx * maxStripSize + j].y)) < diffDist) {
 	  diffDist = distance(convert_float2(diffs[strip_idx * maxStripSize/2].lo), convert_float2(diffs[strip_idx * maxStripSize/2].hi));
 	  if (diffDist > distance(convert_float2(strip[strip_idx * maxStripSize + i]), convert_float2(strip[strip_idx * maxStripSize + j])))
 	  {
